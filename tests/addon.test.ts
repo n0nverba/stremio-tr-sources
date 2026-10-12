@@ -41,7 +41,7 @@ describe('official Stremio SDK', () => {
   it('declares catalogs, metadata and streams', () => {
     expect(manifest).toMatchObject({
       id: 'com.stremiotr.sources',
-      version: '1.1.0',
+      version: '1.1.1',
       catalogs: [
         { type: 'movie', id: 'tr-all' },
         { type: 'series', id: 'tr-all' },

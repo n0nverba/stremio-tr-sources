@@ -36,7 +36,7 @@ jobs:
           Set-Location "release\stremio-tr-sources"
           npm ci --omit=dev
           Set-Location ".."
-          Compress-Archive -Path "stremio-tr-sources" -DestinationPath "stremio-tr-sources-v1.1.0-windows.zip" -Force
+          Compress-Archive -Path "stremio-tr-sources" -DestinationPath "stremio-tr-sources-windows.zip" -Force
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -47,6 +47,6 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            release/stremio-tr-sources-v1.1.0-windows.zip
+            release/stremio-tr-sources-windows.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
