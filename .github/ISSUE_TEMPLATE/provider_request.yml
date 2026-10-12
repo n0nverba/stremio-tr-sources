@@ -1,0 +1,30 @@
+name: '🎬 Yeni Kaynak İsteği (Provider Request)'
+description: 'Eklentiye eklenmesini istediğiniz bir film veya dizi sitesi önerin'
+labels: ['provider-request', 'enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Yeni bir Türkçe kaynak önerisinde bulunmak istediğiniz için teşekkürler!
+  - type: input
+    id: site_name
+    attributes:
+      label: 'Site Adı ve Güncel Adresi'
+      description: 'Örn: FilmModu (https://filmmodu.cx)'
+      placeholder: 'Site adı ve URL'
+    validations:
+      required: true
+  - type: checkboxes
+    id: content_types
+    attributes:
+      label: 'İçerik Türü'
+      options:
+        - label: 'Filmler'
+        - label: 'Yabancı Diziler'
+        - label: 'Yerli Diziler'
+        - label: 'Anime'
+  - type: textarea
+    id: notes
+    attributes:
+      label: 'Ek Bilgiler veya Oynatıcı Detayları'
+      description: 'Sitede Cloudflare koruması var mı? Hangi video playerları kullanıyor?'

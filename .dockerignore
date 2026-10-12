@@ -1,0 +1,8 @@
+node_modules
+.cache
+reports
+scratch
+tests
+.git
+.github
+*.cmd

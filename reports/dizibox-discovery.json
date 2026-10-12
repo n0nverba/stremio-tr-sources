@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-10-10T03:09:39.211Z",
+  "requested": {
+    "type": "series",
+    "imdbId": "tt0903747",
+    "season": 1,
+    "episode": 2
+  },
+  "result": {
+    "status": "request-failed",
+    "playbackStatus": "unverified",
+    "code": "EACCES",
+    "error": "Public page request failed or timed out. No access-control bypass attempted."
+  }
+}

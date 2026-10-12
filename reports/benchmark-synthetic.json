@@ -1,0 +1,29 @@
+{
+  "measuredAt": "2026-10-11T21:33:18.499Z",
+  "mode": "synthetic-no-network",
+  "node": "v24.19.0",
+  "os": "win32 10.0.26200",
+  "cpu": "AMD Ryzen 5 5600 6-Core Processor              ",
+  "cold": {
+    "samples": 100,
+    "meanMs": 0.2716509999999988,
+    "p50Ms": 0.2207000000000221,
+    "p95Ms": 0.45990000000000464,
+    "maxMs": 2.93810000000002
+  },
+  "cacheHit": {
+    "samples": 100,
+    "meanMs": 0.030750000000001592,
+    "p50Ms": 0.028599999999983083,
+    "p95Ms": 0.06099999999997863,
+    "maxMs": 0.09140000000002146
+  },
+  "memory": {
+    "rss": 76066816,
+    "heapTotal": 33599488,
+    "heapUsed": 18171672,
+    "external": 4079430,
+    "arrayBuffers": 250394
+  },
+  "note": "Measures core overhead only; not internet latency or Stremio playback."
+}

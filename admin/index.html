@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Stremio TR Sources</title>
+    <link rel="stylesheet" href="/admin/style.css" />
+    <script src="/admin/app.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="badge">YEREL YÖNETİM · v1.1.0</span>
+        <h1>Stremio TR Sources</h1>
+        <p>İzinli kaynaklarınız, tek yerde.</p>
+      </header>
+      <section>
+        <h2>Stremio’ya ekle</h2>
+        <p>
+          Stremio masaüstü uygulamasında Eklentiler bölümüne aşağıdaki manifest
+          adresini yapıştırın. Güncellemeden sonra eklentiyi kaldırıp yeniden
+          ekleyin. Keşfet bölümünde TR · Tüm Filmler, TR · Tüm Diziler ve
+          sağlayıcı kataloglarını seçebilirsiniz.
+        </p>
+        <div class="install">
+          <input
+            id="install"
+            readonly
+            aria-label="Eklenti kurulum adresi"
+          /><button id="copy" type="button">Adresi kopyala</button>
+        </div>
+        <p class="muted">
+          Demo film: Big Buck Bunny · IMDb tt1254207 · Blender Foundation · CC
+          BY 3.0
+        </p>
+      </section>
+      <section>
+        <h2>Demo oynatımı</h2>
+        <button id="demo-check" type="button" disabled>
+          Stream bağlantısını kontrol et
+        </button>
+        <p id="demo-status" role="status" aria-live="polite">
+          Big Buck Bunny · Bağlantı henüz kontrol edilmedi.
+        </p>
+        <video id="demo-video" controls playsinline preload="none" hidden>
+          Tarayıcınız HTML video oynatımını desteklemiyor.
+        </video>
+        <p>
+          Film ve dizi kataloglarında içerikleri arayabilir, sayfalar arasında
+          gezinebilirsiniz. Oynatma bağlantıları kaynak erişimine bağlıdır.
+          Dizipal kataloğu listelenir; oynatma desteği yoktur.
+        </p>
+        <p>
+          <a href="stremio://detail/movie/tt1254207/tt1254207"
+            >Demo filmi Stremio’da doğrudan aç</a
+          >
+        </p>
+        <p class="muted">
+          Katalog aramasına gerek yok. Eklentiyi yükledikten sonra film
+          sayfasında STREMIO TR kaynağını seçin.
+        </p>
+      </section>
+      <form id="settings">
+        <section>
+          <h2>Sağlayıcılar</h2>
+          <div id="providers">Yükleniyor…</div>
+          <div id="unsupported-sources"></div>
+          <p class="muted">
+            Yeni sağlayıcı eklemek için izin kanıtını ve host listesini
+            data/providers.json dosyasında tanımlayın.
+          </p>
+        </section>
+        <section>
+          <h2>Oynatma tercihleri</h2>
+          <div class="grid">
+            <label
+              >Dil<select id="language">
+                <option value="all">Hepsi</option>
+                <option value="prefer-dub">Türkçe dublaj öncelikli</option>
+                <option value="prefer-sub">Türkçe altyazı öncelikli</option>
+                <option value="only-dub">Yalnızca Türkçe dublaj</option>
+                <option value="only-sub">Yalnızca Türkçe altyazı</option>
+              </select></label
+            >
+            <label
+              >Kalite sırası<select id="quality">
+                <option value="highest">Yüksekten düşüğe</option>
+                <option value="lowest">Düşükten yükseğe</option>
+              </select></label
+            >
+            <label
+              >Sağlayıcı timeout (ms)<input
+                id="timeout"
+                type="number"
+                min="100"
+                max="30000"
+                required
+            /></label>
+            <label
+              >Eşleşme güven eşiği<input
+                id="threshold"
+                type="number"
+                min="0.8"
+                max="1"
+                step="0.01"
+                required
+            /></label>
+          </div>
+          <button type="submit">Tercihleri kaydet</button>
+        </section>
+      </form>
+      <section>
+        <div class="section-head">
+          <h2>Kaynak durumu</h2>
+          <button id="health" type="button">Durumları kontrol et</button>
+        </div>
+        <div id="health-results">Kontrol henüz yapılmadı.</div>
+      </section>
+      <section>
+        <div class="section-head">
+          <h2>Önbellek ve son hatalar</h2>
+          <button id="clear" type="button">Önbelleği temizle</button>
+        </div>
+        <p id="cache"></p>
+        <ul id="errors"></ul>
+      </section>
+      <p id="message" role="status" aria-live="polite"></p>
+      <footer>
+        Big Buck Bunny © 2008 Blender Foundation ·
+        <a
+          href="https://peach.blender.org/about/"
+          target="_blank"
+          rel="noreferrer"
+          >Lisans ve atıf</a
+        >
+      </footer>
+    </main>
+  </body>
+</html>

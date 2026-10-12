@@ -1,0 +1,151 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+  background: #0c1220;
+  color: #e9edf5;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+header {
+  margin-bottom: 32px;
+}
+h1 {
+  font-size: clamp(28px, 5vw, 44px);
+  margin: 12px 0;
+  letter-spacing: -1px;
+}
+h2 {
+  font-size: 20px;
+  margin: 0 0 18px;
+}
+p {
+  line-height: 1.6;
+}
+.badge {
+  color: #76ddcc;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+section {
+  background: #151e30;
+  border: 1px solid #29344a;
+  padding: 24px;
+  margin: 18px 0;
+  border-radius: 16px;
+}
+button,
+input,
+select {
+  font: inherit;
+  border-radius: 8px;
+  padding: 11px 14px;
+}
+input,
+select {
+  background: #0c1220;
+  color: #edf2fa;
+  border: 1px solid #3c4a65;
+  min-width: 0;
+}
+button {
+  border: 0;
+  background: #83e1cf;
+  color: #092522;
+  font-weight: 650;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+button:hover {
+  background: #aff4e7;
+}
+.install {
+  display: flex;
+  gap: 12px;
+}
+.install input {
+  flex: 1;
+}
+.muted,
+footer {
+  color: #a5b1c9;
+  font-size: 14px;
+}
+a {
+  color: #83e1cf;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+label {
+  display: grid;
+  gap: 8px;
+}
+.provider {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 12px 0;
+}
+.provider input {
+  width: 18px;
+  height: 18px;
+}
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.section-head h2 {
+  margin: 0;
+}
+.health-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #29344a;
+  line-height: 1.6;
+}
+.health-row small {
+  display: block;
+  color: #a5b1c9;
+}
+#message {
+  min-height: 28px;
+  color: #83e1cf;
+}
+footer {
+  margin-top: 36px;
+}
+#demo-video {
+  width: 100%;
+  background: #000;
+  border-radius: 12px;
+}
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .install,
+  .section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  main {
+    padding: 28px 16px;
+  }
+}

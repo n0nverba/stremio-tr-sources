@@ -1,0 +1,47 @@
+{
+  "name": "stremio-tr-sources",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "node scripts/run-ts.mjs src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src tests scripts",
+    "format": "prettier --write src tests scripts admin *.json *.md",
+    "format:check": "prettier --check src tests scripts admin *.json *.md",
+    "test": "node scripts/test-runner.mjs",
+    "test:integration": "node scripts/test-runner.mjs tests/integration.test.ts --integration",
+    "benchmark": "node scripts/run-ts.mjs scripts/benchmark.ts",
+    "check": "npm run typecheck && npm run lint && npm test && npm run build && npm run test:built",
+    "test:built": "node scripts/smoke-built.mjs",
+    "sources:check": "node scripts/run-ts.mjs scripts/check-sources.ts",
+    "dizibox:index": "node scripts/run-ts.mjs scripts/index-dizibox.ts",
+    "dizibox:discover": "node scripts/run-ts.mjs scripts/discover-dizibox.ts",
+    "test:core": "node scripts/test-runner.mjs tests/matching.test.ts tests/security.test.ts tests/streams.test.ts tests/providers.test.ts tests/http.test.ts",
+    "typecheck:core": "tsc --noEmit -p tsconfig.core.json"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "22.19.19",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.0",
+    "vitest": "2.1.9",
+    "@types/express": "^4.17.21",
+    "prettier": "^3.5.3"
+  },
+  "dependencies": {
+    "ipaddr.js": "2.5.0",
+    "undici": "7.29.1",
+    "zod": "4.6.5",
+    "stremio-addon-sdk": "1.6.10",
+    "express": "^4.21.2",
+    "pino": "^9.6.0",
+    "dotenv": "^16.4.7"
+  }
+}

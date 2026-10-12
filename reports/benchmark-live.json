@@ -1,0 +1,29 @@
+{
+  "measuredAt": "2026-10-11T21:33:21.962Z",
+  "mode": "live-authorized-media",
+  "node": "v24.19.0",
+  "os": "win32 10.0.26200",
+  "cpu": "AMD Ryzen 5 5600 6-Core Processor              ",
+  "cold": {
+    "samples": 10,
+    "meanMs": 193.92381999999998,
+    "p50Ms": 195.25220000000013,
+    "p95Ms": 232.99099999999999,
+    "maxMs": 232.99099999999999
+  },
+  "cacheHit": {
+    "samples": 10,
+    "meanMs": 0.0923400000000072,
+    "p50Ms": 0.08420000000000982,
+    "p95Ms": 0.20400000000000773,
+    "maxMs": 0.20400000000000773
+  },
+  "memory": {
+    "rss": 79097856,
+    "heapTotal": 34811904,
+    "heapUsed": 18105408,
+    "external": 4222709,
+    "arrayBuffers": 238131
+  },
+  "note": "Network timings include validation; Stremio GUI playback is a separate manual check."
+}

@@ -1,0 +1,166 @@
+param(
+    [Parameter(Mandatory=$true)]
+    [ValidateSet("install", "uninstall", "start", "stop", "status")]
+    [string]$Action
+)
+
+$rootDir = Split-Path -Parent $PSScriptRoot
+$vbsPath = Join-Path $rootDir "scripts\start-hidden.vbs"
+$startupPath = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup")
+$shortcutFile = Join-Path $startupPath "Stremio-TR-Sources.lnk"
+
+function IsPort7000Running {
+    $conn = Get-NetTCPConnection -LocalPort 7000 -ErrorAction SilentlyContinue
+    return ($null -ne $conn)
+}
+
+function StopServer {
+    $conns = Get-NetTCPConnection -LocalPort 7000 -ErrorAction SilentlyContinue
+    if ($conns) {
+        $pids = $conns | ForEach-Object { $_.OwningProcess } | Select-Object -Unique
+        foreach ($procId in $pids) {
+            try {
+                Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+            } catch {}
+        }
+        return $true
+    }
+    return $false
+}
+
+function StartServer {
+    if (IsPort7000Running) {
+        Write-Host " [BILGI] Eklenti zaten arka planda calisiyor (Port: 7000)." -ForegroundColor Cyan
+        return
+    }
+    Start-Process "wscript.exe" -ArgumentList "`"$vbsPath`"" -WorkingDirectory "$rootDir"
+    for ($i = 0; $i -lt 10; $i++) {
+        Start-Sleep -Milliseconds 500
+        if (IsPort7000Running) {
+            Write-Host " [OK] Eklenti arka planda basariyla baslatildi (Port: 7000)." -ForegroundColor Green
+            return
+        }
+    }
+    Write-Host " [UYARI] Eklenti baslatildi, baglanti kuruluyor..." -ForegroundColor Yellow
+}
+
+switch ($Action) {
+    "install" {
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host "   Stremio TR Sources - Otomatik Baslatma Kurulumu" -ForegroundColor White
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host ""
+
+        # 1. Build check
+        $distJs = Join-Path $rootDir "dist\index.js"
+        if (-not (Test-Path $distJs)) {
+            Write-Host "[1/3] Ilk derleme yapiliyor..." -ForegroundColor Yellow
+            Set-Location $rootDir
+            & npm.cmd run build
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "[HATA] Derleme basarisiz oldu!" -ForegroundColor Red
+                exit 1
+            }
+        } else {
+            Write-Host "[1/3] Derleme hazir (dist/index.js)." -ForegroundColor Green
+        }
+
+        # 2. Add to Startup
+        Write-Host "[2/3] Windows baslangicina kisayol ekleniyor..." -ForegroundColor Yellow
+        try {
+            $wsh = New-Object -ComObject WScript.Shell
+            $shortcut = $wsh.CreateShortcut($shortcutFile)
+            $shortcut.TargetPath = "wscript.exe"
+            $shortcut.Arguments = "`"$vbsPath`""
+            $shortcut.WorkingDirectory = "$rootDir"
+            $shortcut.Description = "Stremio TR Sources Arka Plan Servisi"
+            $shortcut.Save()
+            Write-Host " [OK] Windows Baslangic klasorune eklendi:" -ForegroundColor Green
+            Write-Host "      $shortcutFile" -ForegroundColor DarkGray
+        } catch {
+            Write-Host " [HATA] Kisayol olusturulamadi: $_" -ForegroundColor Red
+            exit 1
+        }
+
+        # 3. Start server
+        Write-Host "[3/3] Eklenti arka planda calistiriliyor..." -ForegroundColor Yellow
+        StartServer
+
+        # 4. Open Stremio manifest
+        Write-Host ""
+        Write-Host "Stremio uygulamasi aciliyor ve eklenti yukleme adresi gonderiliyor..." -ForegroundColor Cyan
+        Start-Process "stremio://127.0.0.1:7000/manifest.json"
+
+        Write-Host ""
+        Write-Host "============================================================" -ForegroundColor Green
+        Write-Host "               KURULUM BASARIYLA TAMAMLANDI!" -ForegroundColor White
+        Write-Host "============================================================" -ForegroundColor Green
+        Write-Host " * Eklenti artik bilgisayarinizi her actiginizda otomatik baslar." -ForegroundColor White
+        Write-Host " * Arka planda sessizce calisir, hicbir siyah pencere acilmaz." -ForegroundColor White
+        Write-Host " * Stremio'da 'Yukle' (Install) butonuna basmaniz yeterlidir." -ForegroundColor White
+        Write-Host " * Yonetim Paneli : http://127.0.0.1:7000/admin/" -ForegroundColor Yellow
+        Write-Host "============================================================" -ForegroundColor Green
+        Write-Host ""
+    }
+
+    "uninstall" {
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host "   Stremio TR Sources - Otomatik Baslatmayi Kaldir" -ForegroundColor White
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host ""
+
+        if (Test-Path $shortcutFile) {
+            Remove-Item $shortcutFile -Force
+            Write-Host "[OK] Windows baslangic kisayolu silindi." -ForegroundColor Green
+        } else {
+            Write-Host "[BILGI] Baslangic klasorunde kisayol bulunamadi." -ForegroundColor Yellow
+        }
+
+        $stopped = StopServer
+        if ($stopped) {
+            Write-Host "[OK] Arka planda calisan servis durduruldu." -ForegroundColor Green
+        } else {
+            Write-Host "[BILGI] Eklenti zaten calismiyordu." -ForegroundColor Yellow
+        }
+
+        Write-Host ""
+        Write-Host "Otomatik baslatma basariyla kaldirildi." -ForegroundColor Cyan
+    }
+
+    "start" {
+        StartServer
+    }
+
+    "stop" {
+        $stopped = StopServer
+        if ($stopped) {
+            Write-Host "[OK] Stremio TR Sources durduruldu." -ForegroundColor Green
+        } else {
+            Write-Host "[BILGI] Eklenti zaten calismiyor." -ForegroundColor Yellow
+        }
+    }
+
+    "status" {
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host "          Stremio TR Sources - Durum Kontrolu" -ForegroundColor White
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host ""
+        $running = IsPort7000Running
+        if ($running) {
+            Write-Host "Durum          : CALISIYOR (Port 7000 aktif)" -ForegroundColor Green
+            Write-Host "Yonetim Paneli : http://127.0.0.1:7000/admin/" -ForegroundColor White
+            Write-Host "Manifest URL   : http://127.0.0.1:7000/manifest.json" -ForegroundColor White
+            $inStartup = Test-Path $shortcutFile
+            if ($inStartup) {
+                Write-Host "Otomatik Basla : EVET (Windows acilisinda aktif)" -ForegroundColor Green
+            } else {
+                Write-Host "Otomatik Basla : HAYIR" -ForegroundColor Yellow
+            }
+            Start-Process "http://127.0.0.1:7000/admin/"
+        } else {
+            Write-Host "Durum          : DURDURULDU (Calismiyor)" -ForegroundColor Red
+            Write-Host "Baslatmak icin : Stremio-TR-Baslat.cmd veya Kur-Otomatik-Baslat.cmd" -ForegroundColor Yellow
+        }
+        Write-Host ""
+    }
+}

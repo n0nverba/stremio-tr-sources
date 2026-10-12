@@ -1,0 +1,8 @@
+services:
+  stremio-tr-sources:
+    build: .
+    container_name: stremio-tr-sources
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./data:/app/data

@@ -1,0 +1,42 @@
+name: '🐛 Hata Bildirimi (Bug Report)'
+description: 'Eklentide bir sorun veya çalışmayan bir akış fark ettiyseniz bildirin'
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hata bildiriminiz için teşekkürler! Lütfen sorunu en kısa sürede çözebilmemiz için detayları eksiksiz doldurun.
+  - type: input
+    id: title_name
+    attributes:
+      label: 'Film / Dizi Adı ve IMDb Kimliği'
+      description: 'Örn: Daniel (tt9179230) veya Breaking Bad (tt0903747:S01E01)'
+      placeholder: 'Film adı ve IMDb ID'
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: 'Sorunlu Kaynak (Varsa)'
+      options:
+        - 'Bilinmiyor / Genel'
+        - 'Film Makinesi'
+        - 'DiziBOX'
+        - 'HDFilmCehennemi'
+        - 'DiziLife'
+        - 'Dizipal'
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 'Sorunun Açıklaması'
+      description: 'Ne oldu? Hata mesajı çıktı mı? Akış mı gelmedi yoksa video mu açılmadı?'
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 'Konsol / Terminal Günlükleri (Log)'
+      description: 'Terminalde görünen [REQ] veya [STREAM RESP] loglarını buraya yapıştırabilirsiniz.'
+      render: shell

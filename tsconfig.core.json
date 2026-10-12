@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/types/index.ts",
+    "src/cache/memory-cache.ts",
+    "src/utils/normalize-title.ts",
+    "src/utils/parse-id.ts",
+    "src/utils/timeout.ts",
+    "src/utils/validate-url.ts",
+    "src/utils/safe-http.ts",
+    "src/services/matching-service.ts",
+    "src/services/quality-service.ts",
+    "src/services/video-validator.ts",
+    "tests/matching.test.ts",
+    "tests/http.test.ts"
+  ]
+}
