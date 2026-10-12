@@ -5,7 +5,7 @@ param(
 )
 
 $rootDir = Split-Path -Parent $PSScriptRoot
-$vbsPath = Join-Path $rootDir "scripts\start-hidden.vbs"
+$cmdPath = Join-Path $rootDir "Stremio-TR-Baslat.cmd"
 $startupPath = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup")
 $shortcutFile = Join-Path $startupPath "Stremio-TR-Sources.lnk"
 
@@ -30,18 +30,18 @@ function StopServer {
 
 function StartServer {
     if (IsPort7000Running) {
-        Write-Host " [BILGI] Eklenti zaten arka planda calisiyor (Port: 7000)." -ForegroundColor Cyan
+        Write-Host " [BILGI] Eklenti zaten calisiyor (Port: 7000)." -ForegroundColor Cyan
         return
     }
-    Start-Process "wscript.exe" -ArgumentList "`"$vbsPath`"" -WorkingDirectory "$rootDir"
+    Start-Process -FilePath "$cmdPath" -WorkingDirectory "$rootDir" -WindowStyle Minimized
     for ($i = 0; $i -lt 10; $i++) {
         Start-Sleep -Milliseconds 500
         if (IsPort7000Running) {
-            Write-Host " [OK] Eklenti arka planda basariyla baslatildi (Port: 7000)." -ForegroundColor Green
+            Write-Host " [OK] Eklenti basariyla baslatildi (Port: 7000 - Gorev cubugunda simge durumunda)." -ForegroundColor Green
             return
         }
     }
-    Write-Host " [UYARI] Eklenti baslatildi, baglanti kuruluyor..." -ForegroundColor Yellow
+    Write-Host " [UYARI] Eklenti baslatildi, acilmasi birkac saniye surebilir." -ForegroundColor Yellow
 }
 
 switch ($Action) {
@@ -70,12 +70,12 @@ switch ($Action) {
         try {
             $wsh = New-Object -ComObject WScript.Shell
             $shortcut = $wsh.CreateShortcut($shortcutFile)
-            $shortcut.TargetPath = "wscript.exe"
-            $shortcut.Arguments = "`"$vbsPath`""
+            $shortcut.TargetPath = $cmdPath
             $shortcut.WorkingDirectory = "$rootDir"
-            $shortcut.Description = "Stremio TR Sources Arka Plan Servisi"
+            $shortcut.WindowStyle = 7 # Minimized
+            $shortcut.Description = "Stremio TR Sources Servisi"
             $shortcut.Save()
-            Write-Host " [OK] Windows Baslangic klasorune eklendi:" -ForegroundColor Green
+            Write-Host " [OK] Windows Baslangic klasorune eklendi (Simge durumunda calisir):" -ForegroundColor Green
             Write-Host "      $shortcutFile" -ForegroundColor DarkGray
         } catch {
             Write-Host " [HATA] Kisayol olusturulamadi: $_" -ForegroundColor Red
@@ -83,22 +83,27 @@ switch ($Action) {
         }
 
         # 3. Start server
-        Write-Host "[3/3] Eklenti arka planda calistiriliyor..." -ForegroundColor Yellow
+        Write-Host "[3/3] Eklenti baslatiliyor..." -ForegroundColor Yellow
         StartServer
 
-        # 4. Open Stremio manifest
-        Write-Host ""
-        Write-Host "Stremio uygulamasi aciliyor ve eklenti yukleme adresi gonderiliyor..." -ForegroundColor Cyan
-        Start-Process "stremio://127.0.0.1:7000/manifest.json"
+        # 4. Copy manifest URL to clipboard and open Stremio
+        Set-Clipboard -Value "http://127.0.0.1:7000/manifest.json" -ErrorAction SilentlyContinue
+        Start-Process "stremio://127.0.0.1:7000/manifest.json" -ErrorAction SilentlyContinue
 
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Green
         Write-Host "               KURULUM BASARIYLA TAMAMLANDI!" -ForegroundColor White
         Write-Host "============================================================" -ForegroundColor Green
         Write-Host " * Eklenti artik bilgisayarinizi her actiginizda otomatik baslar." -ForegroundColor White
-        Write-Host " * Arka planda sessizce calisir, hicbir siyah pencere acilmaz." -ForegroundColor White
-        Write-Host " * Stremio'da 'Yukle' (Install) butonuna basmaniz yeterlidir." -ForegroundColor White
-        Write-Host " * Yonetim Paneli : http://127.0.0.1:7000/admin/" -ForegroundColor Yellow
+        Write-Host " * Gorev cubugunda simge durumunda sessizce calisir." -ForegroundColor White
+        Write-Host ""
+        Write-Host " * DIKKAT: Eklenti adresi panonuza kopyalandi!" -ForegroundColor Yellow
+        Write-Host "   Eger Stremio'da yukleme ekrani acilmadiysa:" -ForegroundColor Yellow
+        Write-Host "   1. Stremio'da sol menuden Eklentiler (Puzzle simgesi) butonuna basin." -ForegroundColor White
+        Write-Host "   2. Ust arama cubuguna Yapistir (Ctrl+V) yapin ve Enter'a basin." -ForegroundColor White
+        Write-Host "   3. 'Stremio TR Sources' yanindaki 'Yukle' (Install) butonuna tiklayin." -ForegroundColor White
+        Write-Host ""
+        Write-Host " * Yonetim Paneli : http://127.0.0.1:7000/admin/" -ForegroundColor Cyan
         Write-Host "============================================================" -ForegroundColor Green
         Write-Host ""
     }
@@ -118,7 +123,7 @@ switch ($Action) {
 
         $stopped = StopServer
         if ($stopped) {
-            Write-Host "[OK] Arka planda calisan servis durduruldu." -ForegroundColor Green
+            Write-Host "[OK] Calisan servis durduruldu." -ForegroundColor Green
         } else {
             Write-Host "[BILGI] Eklenti zaten calismiyordu." -ForegroundColor Yellow
         }
