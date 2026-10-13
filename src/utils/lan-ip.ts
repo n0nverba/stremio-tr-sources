@@ -1,4 +1,6 @@
 import os from 'node:os';
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { env } from '../config/env.js';
 
 export function getLanIp(): string {
@@ -40,3 +42,20 @@ export function getLanIp(): string {
 export function getLanHost(): string {
   return `${getLanIp()}:${env.PORT}`;
 }
+
+export function getProxyBaseUrl(): string {
+  if (process.env.NODE_ENV === 'test') {
+    return `http://${getLanHost()}`;
+  }
+  try {
+    const tunnelPath = resolve(process.cwd(), 'data', 'tunnel-url.txt');
+    if (existsSync(tunnelPath)) {
+      const content = readFileSync(tunnelPath, 'utf8').trim();
+      if (content.startsWith('https://')) {
+        return content.replace(/\/manifest\.json$/, '');
+      }
+    }
+  } catch {}
+  return `http://${getLanHost()}`;
+}
+

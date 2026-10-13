@@ -5,7 +5,7 @@ import { HDFilmCehennemiProvider } from '../src/providers/hdfilmcehennemi-provid
 import { FilmMakinesiProvider } from '../src/providers/filmmakinesi-provider.js';
 import { createApp, createRuntime } from '../src/server.js';
 import { service, provider } from './helpers.js';
-import type { Server } from 'node:http';
+import { createServer, type Server } from 'node:http';
 
 const servers: Server[] = [];
 afterEach(async () => {
@@ -193,4 +193,48 @@ video.m3u8`;
     expect(subEng).toContain('DEFAULT=NO');
     expect(subEng).toContain('AUTOSELECT=NO');
   });
+
+  it('puts Turkish audio first when audio=tr and sanitizes segment MIME type', async () => {
+    const mockM3u8 = `#EXTM3U
+#EXT-X-VERSION:6
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="English",DEFAULT=YES,AUTOSELECT=YES,LANGUAGE="eng",URI="eng.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Türkçe",DEFAULT=NO,AUTOSELECT=NO,LANGUAGE="tur",URI="tr.m3u8"
+#EXT-X-STREAM-INF:BANDWIDTH=1000000,RESOLUTION=1920x1080,AUDIO="audio"
+video.m3u8`;
+
+    const upstream = createServer((req, res) => {
+      if (req.url === '/master.m3u8') {
+        res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
+        res.end(mockM3u8);
+      } else if (req.url === '/test-segment.ts') {
+        // Upstream sends bogus text/html
+        res.setHeader('Content-Type', 'text/html');
+        res.end(Buffer.from([0x47, 0x40, 0x11, 0x10]));
+      }
+    });
+    await new Promise<void>((resolve) => upstream.listen(0, '127.0.0.1', resolve));
+    servers.push(upstream);
+    const upstreamPort = (upstream.address() as { port: number }).port;
+    const base = await startServer();
+
+    // 1. Verify audio=tr sorts Turkish track first
+    const proxyM3u8 = await fetch(
+      `${base}/proxy/hls?url=${encodeURIComponent(`http://127.0.0.1:${upstreamPort}/master.m3u8`)}&audio=tr`,
+    );
+    expect(proxyM3u8.status).toBe(200);
+    const text = await proxyM3u8.text();
+    const audioLines = text.split('\n').filter((l) => l.includes('TYPE=AUDIO'));
+    expect(audioLines[0]).toContain('NAME="Türkçe"');
+    expect(audioLines[0]).toContain('DEFAULT=YES');
+    expect(audioLines[1]).toContain('NAME="English"');
+    expect(audioLines[1]).toContain('DEFAULT=NO');
+
+    // 2. Verify /proxy/segment overrides text/html with video/MP2T
+    const segRes = await fetch(
+      `${base}/proxy/segment?url=${encodeURIComponent(`http://127.0.0.1:${upstreamPort}/test-segment.ts`)}`,
+    );
+    expect(segRes.status).toBe(200);
+    expect(segRes.headers.get('content-type')).toBe('video/MP2T');
+  });
 });
+

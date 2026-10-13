@@ -157,50 +157,73 @@ export function createProxyRouter(): Router {
 
       const baseUrl = new URL(targetUrl);
       const lines = text.split('\n');
-      const rewritten = lines
-        .map((line) => {
-          let currentLine = line;
-          const trimmed = currentLine.trim();
-          if (!trimmed) return currentLine;
+      const rewrittenLines = lines.map((line) => {
+        let currentLine = line;
+        const trimmed = currentLine.trim();
+        if (!trimmed) return currentLine;
 
-          if (trimmed.startsWith('#EXT-X-MEDIA:TYPE=AUDIO')) {
-            currentLine = rewriteAudioTrack(currentLine, audioMode);
-          } else if (trimmed.startsWith('#EXT-X-MEDIA:TYPE=SUBTITLES')) {
-            currentLine = rewriteSubtitleTrack(currentLine, audioMode);
-          }
+        if (trimmed.startsWith('#EXT-X-MEDIA:TYPE=AUDIO')) {
+          currentLine = rewriteAudioTrack(currentLine, audioMode);
+        } else if (trimmed.startsWith('#EXT-X-MEDIA:TYPE=SUBTITLES')) {
+          currentLine = rewriteSubtitleTrack(currentLine, audioMode);
+        }
 
-          if (trimmed.startsWith('#')) {
-            return currentLine.replace(
-              /URI=["']([^"']+)["']/g,
-              (_match, uri) => {
-                const abs = new URL(uri, baseUrl).href;
-                const proxyPath = isHlsPlaylist(abs)
-                  ? '/proxy/hls/stream.m3u8'
-                  : '/proxy/segment';
-                const params = new URLSearchParams({ url: abs });
-                if (referer) params.set('referer', referer);
-                if (origin) params.set('origin', origin);
-                if (sp) params.set('sp', sp);
-                if (audioMode) params.set('audio', audioMode);
-                return `URI="${proxyPath}?${params.toString()}"`;
-              },
-            );
-          }
+        if (trimmed.startsWith('#')) {
+          return currentLine.replace(
+            /URI=["']([^"']+)["']/g,
+            (_match, uri) => {
+              const abs = new URL(uri, baseUrl).href;
+              const proxyPath = isHlsPlaylist(abs)
+                ? '/proxy/hls/stream.m3u8'
+                : '/proxy/segment';
+              const params = new URLSearchParams({ url: abs });
+              if (referer) params.set('referer', referer);
+              if (origin) params.set('origin', origin);
+              if (sp) params.set('sp', sp);
+              if (audioMode) params.set('audio', audioMode);
+              return `URI="${proxyPath}?${params.toString()}"`;
+            },
+          );
+        }
 
-          const abs = new URL(trimmed, baseUrl).href;
-          const proxyPath = isHlsPlaylist(abs)
-            ? '/proxy/hls/stream.m3u8'
-            : '/proxy/segment';
-          const params = new URLSearchParams({ url: abs });
-          if (referer) params.set('referer', referer);
-          if (origin) params.set('origin', origin);
-          if (sp) params.set('sp', sp);
-          if (audioMode) params.set('audio', audioMode);
-          return `${proxyPath}?${params.toString()}`;
-        })
-        .join('\n');
+        const abs = new URL(trimmed, baseUrl).href;
+        const proxyPath = isHlsPlaylist(abs)
+          ? '/proxy/hls/stream.m3u8'
+          : '/proxy/segment';
+        const params = new URLSearchParams({ url: abs });
+        if (referer) params.set('referer', referer);
+        if (origin) params.set('origin', origin);
+        if (sp) params.set('sp', sp);
+        if (audioMode) params.set('audio', audioMode);
+        return `${proxyPath}?${params.toString()}`;
+      });
 
-      res.send(rewritten);
+      // Sort consecutive AUDIO tracks so that DEFAULT=YES appears first
+      const sorted: string[] = [];
+      let audioGroup: string[] = [];
+      const flushAudioGroup = () => {
+        if (audioGroup.length > 0) {
+          audioGroup.sort((a, b) => {
+            const aDef = /DEFAULT=YES/i.test(a) ? 1 : 0;
+            const bDef = /DEFAULT=YES/i.test(b) ? 1 : 0;
+            return bDef - aDef;
+          });
+          sorted.push(...audioGroup);
+          audioGroup = [];
+        }
+      };
+
+      for (const line of rewrittenLines) {
+        if (line.trim().startsWith('#EXT-X-MEDIA:TYPE=AUDIO')) {
+          audioGroup.push(line);
+        } else {
+          flushAudioGroup();
+          sorted.push(line);
+        }
+      }
+      flushAudioGroup();
+
+      res.send(sorted.join('\n'));
     } catch (error) {
       res
         .status(500)
@@ -228,12 +251,14 @@ export function createProxyRouter(): Router {
           : generateXSp(sp)
         : undefined;
 
+      const rangeHeader = req.headers.range;
       const response = await fetch(targetUrl, {
         headers: {
           'user-agent': USER_AGENT,
           ...(referer ? { referer } : {}),
           ...(origin ? { origin } : {}),
           ...(xSpHeader ? { 'x-sp': xSpHeader } : {}),
+          ...(rangeHeader ? { range: rangeHeader } : {}),
         },
       });
 
@@ -245,13 +270,32 @@ export function createProxyRouter(): Router {
       }
 
       const isVtt = targetUrl.includes('.vtt') || targetUrl.includes('.webvtt');
-      const contentType = response.headers.get('content-type');
-      res.setHeader(
-        'Content-Type',
-        contentType || (isVtt ? 'text/vtt; charset=utf-8' : 'video/MP2T'),
-      );
+      const upstreamCt = (response.headers.get('content-type') || '').toLowerCase();
+      let safeContentType = 'video/MP2T';
+
+      if (isVtt) {
+        safeContentType = 'text/vtt; charset=utf-8';
+      } else if (targetUrl.includes('.m4s') || targetUrl.includes('.mp4')) {
+        safeContentType = 'video/mp4';
+      } else if (targetUrl.includes('.m4a') || targetUrl.includes('.aac')) {
+        safeContentType = 'audio/mp4';
+      } else if (
+        upstreamCt.startsWith('video/') ||
+        upstreamCt.startsWith('audio/') ||
+        upstreamCt === 'application/octet-stream'
+      ) {
+        safeContentType = upstreamCt;
+      }
+
+      res.status(response.status);
+      res.setHeader('Content-Type', safeContentType);
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Cache-Control', 'public, max-age=3600');
+      const contentRange = response.headers.get('content-range');
+      if (contentRange) {
+        res.setHeader('Content-Range', contentRange);
+        res.setHeader('Accept-Ranges', 'bytes');
+      }
 
       const buffer = await response.arrayBuffer();
       res.send(Buffer.from(buffer));
