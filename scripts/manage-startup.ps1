@@ -112,14 +112,7 @@ switch ($Action) {
             }
         }
         if (-not $manifestUrl) {
-            $instLanIp = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*", "Wi-Fi*" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty IPAddress -First 1
-            if (-not $instLanIp) {
-                $instLanIp = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -like "192.168.*" } | Select-Object -ExpandProperty IPAddress -First 1
-            }
-            if (-not $instLanIp) {
-                $instLanIp = "127.0.0.1"
-            }
-            $manifestUrl = "http://" + $instLanIp + ":7000/manifest.json"
+            $manifestUrl = "http://127.0.0.1:7000/manifest.json"
         }
         $stremioUrl = $manifestUrl.Replace("http://", "stremio://").Replace("https://", "stremio://")
 

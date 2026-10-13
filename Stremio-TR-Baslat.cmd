@@ -35,7 +35,7 @@ echo ============================================================
 echo.
 
 start "" "http://127.0.0.1:7000/admin/"
-start "" "stremio://%LAN_IP%:7000/manifest.json"
+start "" "stremio://127.0.0.1:7000/manifest.json"
 
 node dist/index.js
 set "exitCode=%ERRORLEVEL%"
