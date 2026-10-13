@@ -3,7 +3,7 @@ import type { Manifest } from 'stremio-addon-sdk';
 export const manifest: Manifest = {
   id: 'com.stremiotr.sources',
   name: 'Stremio TR Sources',
-  version: '1.1.1',
+  version: '1.1.2',
   description:
     'Türkçe dizi ve film kaynakları (Film Makinesi, DiziBOX, HDFilmCehennemi, DiziLife).',
   resources: [

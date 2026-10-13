@@ -1,6 +1,7 @@
 import type { Stream } from 'stremio-addon-sdk';
 import type { ResolvedStream } from '../types/index.js';
 import { env } from '../config/env.js';
+import { getLanHost } from '../utils/lan-ip.js';
 const labels = {
   'tr-dub': 'Türkçe Dublaj',
   'tr-sub': 'Türkçe Altyazı',
@@ -45,7 +46,7 @@ export function mapStream(stream: ResolvedStream): Stream {
     if (sp) params.set('sp', sp);
     if (isDub) params.set('audio', 'tr');
     if (isSub) params.set('audio', 'orig');
-    playUrl = `http://127.0.0.1:${env.PORT}/proxy/hls/stream.m3u8?${params.toString()}`;
+    playUrl = `http://${getLanHost()}/proxy/hls/stream.m3u8?${params.toString()}`;
   }
 
   return {

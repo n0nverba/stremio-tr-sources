@@ -24,6 +24,9 @@ async function load() {
   state = await api('state');
   byId('demo-check').disabled = !state.demoPreview;
   byId('install').value = state.installUrl;
+  if (byId('install-lan')) {
+    byId('install-lan').value = state.lanInstallUrl || state.installUrl;
+  }
   byId('language').value = state.settings.language;
   byId('quality').value = state.settings.quality;
   byId('timeout').value = state.settings.providerTimeoutMs;
@@ -105,7 +108,13 @@ byId('clear').addEventListener('click', (event) =>
 byId('copy').addEventListener('click', (event) =>
   action(event.target, async () => {
     await navigator.clipboard.writeText(state.installUrl);
-    message('Kurulum adresi kopyalandı.');
+    message('PC kurulum adresi kopyalandı.');
+  }),
+);
+byId('copy-lan')?.addEventListener('click', (event) =>
+  action(event.target, async () => {
+    await navigator.clipboard.writeText(state.lanInstallUrl || state.installUrl);
+    message('Wi-Fi / Mobil kurulum adresi kopyalandı.');
   }),
 );
 byId('health').addEventListener('click', (event) =>

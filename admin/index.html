@@ -10,26 +10,41 @@
   <body>
     <main>
       <header>
-        <span class="badge">YEREL YÖNETİM · v1.1.1</span>
+        <span class="badge">YEREL YÖNETİM · v1.1.2</span>
         <h1>Stremio TR Sources</h1>
         <p>İzinli kaynaklarınız, tek yerde.</p>
       </header>
       <section>
         <h2>Stremio’ya ekle</h2>
         <p>
-          Stremio masaüstü uygulamasında Eklentiler bölümüne aşağıdaki manifest
+          Stremio uygulamasında Eklentiler bölümüne aşağıdaki manifest
           adresini yapıştırın. Güncellemeden sonra eklentiyi kaldırıp yeniden
-          ekleyin. Keşfet bölümünde TR · Tüm Filmler, TR · Tüm Diziler ve
-          sağlayıcı kataloglarını seçebilirsiniz.
+          ekleyin.
         </p>
-        <div class="install">
-          <input
-            id="install"
-            readonly
-            aria-label="Eklenti kurulum adresi"
-          /><button id="copy" type="button">Adresi kopyala</button>
+        <div style="margin-bottom: 12px;">
+          <label style="display:block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Bu Bilgisayar İçin (PC):</label>
+          <div class="install">
+            <input
+              id="install"
+              readonly
+              aria-label="PC kurulum adresi"
+            /><button id="copy" type="button">Kopyala</button>
+          </div>
         </div>
-        <p class="muted">
+        <div>
+          <label style="display:block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #38bdf8;">Aynı Wi-Fi’deki Telefon / Tablet / TV İçin (Önerilen):</label>
+          <div class="install">
+            <input
+              id="install-lan"
+              readonly
+              aria-label="Mobil ve TV kurulum adresi"
+            /><button id="copy-lan" type="button">Kopyala</button>
+          </div>
+          <small style="display:block; margin-top: 6px; color: #94a3b8;">
+            💡 Bu Wi-Fi adresini PC'nizdeki Stremio'ya eklerseniz hesabınızla telefonunuza da otomatik aktarılır ve her iki cihazda da sorunsuz çalışır!
+          </small>
+        </div>
+        <p class="muted" style="margin-top: 14px;">
           Demo film: Big Buck Bunny · IMDb tt1254207 · Blender Foundation · CC
           BY 3.0
         </p>

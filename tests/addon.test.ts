@@ -41,7 +41,7 @@ describe('official Stremio SDK', () => {
   it('declares catalogs, metadata and streams', () => {
     expect(manifest).toMatchObject({
       id: 'com.stremiotr.sources',
-      version: '1.1.1',
+      version: '1.1.2',
       catalogs: [
         { type: 'movie', id: 'tr-all' },
         { type: 'series', id: 'tr-all' },
@@ -138,5 +138,31 @@ describe('official Stremio SDK', () => {
         })
       ).status,
     ).toBe(200);
+  });
+  it('allows local network host headers and provides lanInstallUrl', async () => {
+    const base = await start();
+    const port = new URL(base).port;
+    const res = await new Promise<number | undefined>((resolve, reject) => {
+      request(
+        `${base}/manifest.json`,
+        {
+          headers: { Host: `192.168.1.100:${port}` },
+        },
+        (response) => {
+          response.resume();
+          response.on('end', () => resolve(response.statusCode));
+        },
+      )
+        .on('error', reject)
+        .end();
+    });
+    expect(res).toBe(200);
+
+    const state = (await (await fetch(`${base}/admin/api/state`)).json()) as {
+      lanInstallUrl: string;
+      installUrl: string;
+    };
+    expect(state.lanInstallUrl).toContain('/manifest.json');
+    expect(state.installUrl).toContain('/manifest.json');
   });
 });

@@ -13,6 +13,8 @@ import { StreamService } from './services/stream-service.js';
 import { HealthService } from './services/health-service.js';
 import { ErrorJournal, logger } from './utils/logger.js';
 import { createProxyRouter } from './utils/hls-proxy.js';
+import ipaddr from 'ipaddr.js';
+import { getLanIp } from './utils/lan-ip.js';
 export function createRuntime(
   registry: ProviderRegistry,
   settings = new SettingsStore(),
@@ -34,17 +36,55 @@ export function createRuntime(
   return { registry, settings, errors, streams, health, catalogs };
 }
 export type Runtime = ReturnType<typeof createRuntime>;
+function isAllowedClientIp(addr?: string): boolean {
+  if (!addr) return false;
+  if (['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(addr)) return true;
+  try {
+    if (!ipaddr.isValid(addr)) return false;
+    const range = ipaddr.process(addr).range();
+    return range === 'loopback' || range === 'private';
+  } catch {
+    return false;
+  }
+}
+
+function isAllowedHost(host?: string, port = env.PORT): boolean {
+  if (!host) return false;
+  let hostname = host;
+  if (host.startsWith('[')) {
+    const endBracket = host.indexOf(']');
+    if (endBracket !== -1) {
+      hostname = host.substring(1, endBracket);
+    }
+  } else {
+    hostname = host.split(':')[0]!;
+  }
+  hostname = hostname.toLowerCase();
+  if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+    return true;
+  }
+  if (
+    process.env.PUBLIC_HOST &&
+    (hostname === process.env.PUBLIC_HOST.toLowerCase() ||
+      host.toLowerCase() === process.env.PUBLIC_HOST.toLowerCase() ||
+      host.toLowerCase() === `${process.env.PUBLIC_HOST.toLowerCase()}:${port}`)
+  ) {
+    return true;
+  }
+  try {
+    if (!ipaddr.isValid(hostname)) return false;
+    const range = ipaddr.process(hostname).range();
+    return range === 'loopback' || range === 'private';
+  } catch {
+    return false;
+  }
+}
+
 export function createApp(runtime: Runtime, port = env.PORT) {
   const app = express();
   const csrf = randomBytes(32).toString('hex');
   app.disable('x-powered-by');
   app.set('trust proxy', false);
-  const allowedHosts = new Set([
-    `127.0.0.1:${port}`,
-    `localhost:${port}`,
-    '127.0.0.1',
-    'localhost',
-  ]);
   const counters = new Map<
     string,
     {
@@ -53,18 +93,11 @@ export function createApp(runtime: Runtime, port = env.PORT) {
     }
   >();
   app.use((req, res, next) => {
-    console.log(
-      `[REQ] ${req.method} ${req.url} | Host: ${req.headers.host} | IP: ${req.socket.remoteAddress}`,
-    );
-    if (
-      !['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(
-        req.socket.remoteAddress ?? '',
-      )
-    ) {
+    if (!isAllowedClientIp(req.socket.remoteAddress)) {
       res.status(403).json({ error: 'LOCAL_ONLY' });
       return;
     }
-    if (!allowedHosts.has(req.headers.host ?? '')) {
+    if (!isAllowedHost(req.headers.host, port)) {
       res.status(403).json({ error: 'INVALID_HOST' });
       return;
     }
@@ -131,6 +164,7 @@ export function createApp(runtime: Runtime, port = env.PORT) {
       cache: runtime.streams.cache.stats(),
       errors: runtime.errors.list(),
       installUrl: `http://127.0.0.1:${port}/manifest.json`,
+      lanInstallUrl: `http://${getLanIp()}:${port}/manifest.json`,
     });
   });
   admin.get('/api/health', (_req, res, next) => {
