@@ -99,19 +99,32 @@ switch ($Action) {
         Write-Host "[4/4] Eklenti baslatiliyor..." -ForegroundColor Yellow
         StartServer
 
-        # 5. Resolve network IP for universal PC, mobile and TV support
-        $instLanIp = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*", "Wi-Fi*" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty IPAddress -First 1
-        if (-not $instLanIp) {
-            $instLanIp = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -like "192.168.*" } | Select-Object -ExpandProperty IPAddress -First 1
+        # 5. Resolve manifest URL (Cloudflare HTTPS for universal mobile/TV sync, or LAN fallback)
+        $tunnelFile = Join-Path $rootDir "data\tunnel-url.txt"
+        $manifestUrl = ""
+        if (Test-Path $tunnelFile) {
+            $saved = (Get-Content $tunnelFile -Raw -ErrorAction SilentlyContinue)
+            if ($saved) {
+                $saved = $saved.Trim()
+                if ($saved -like "https://*") {
+                    $manifestUrl = $saved
+                }
+            }
         }
-        if (-not $instLanIp) {
-            $instLanIp = "127.0.0.1"
+        if (-not $manifestUrl) {
+            $instLanIp = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*", "Wi-Fi*" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty IPAddress -First 1
+            if (-not $instLanIp) {
+                $instLanIp = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -like "192.168.*" } | Select-Object -ExpandProperty IPAddress -First 1
+            }
+            if (-not $instLanIp) {
+                $instLanIp = "127.0.0.1"
+            }
+            $manifestUrl = "http://" + $instLanIp + ":7000/manifest.json"
         }
-        $instLanUrl = "http://" + $instLanIp + ":7000/manifest.json"
-        $stremioUrl = "stremio://" + $instLanIp + ":7000/manifest.json"
+        $stremioUrl = $manifestUrl.Replace("http://", "stremio://").Replace("https://", "stremio://")
 
         # 6. Copy universal manifest URL to clipboard and open Stremio
-        Set-Clipboard -Value $instLanUrl -ErrorAction SilentlyContinue
+        Set-Clipboard -Value $manifestUrl -ErrorAction SilentlyContinue
         Start-Process $stremioUrl -ErrorAction SilentlyContinue
 
         Write-Host ""
@@ -127,9 +140,8 @@ switch ($Action) {
         Write-Host "   2. Ust arama cubuguna Yapistir (Ctrl+V) yapin ve Enter'a basin." -ForegroundColor White
         Write-Host "   3. 'Stremio TR Sources' yanindaki 'Yukle' (Install) butonuna tiklayin." -ForegroundColor White
         Write-Host ""
-        Write-Host " * Manifest URL   : $instLanUrl" -ForegroundColor Cyan
+        Write-Host " * Manifest URL   : $manifestUrl" -ForegroundColor Cyan
         Write-Host " * Yonetim Paneli : http://127.0.0.1:7000/admin/" -ForegroundColor White
-        Write-Host " * Telefon / TV   : $instLanUrl" -ForegroundColor Cyan
         Write-Host "============================================================" -ForegroundColor Green
         Write-Host ""
     }

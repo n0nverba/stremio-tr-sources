@@ -2,6 +2,7 @@ import { CatalogService } from './services/catalog-service.js';
 import express, { type ErrorRequestHandler } from 'express';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
 import sdk from 'stremio-addon-sdk';
 import { createAddon } from './addon/handlers.js';
 import { env } from './config/env.js';
@@ -61,6 +62,14 @@ function isAllowedHost(host?: string, port = env.PORT): boolean {
   }
   hostname = hostname.toLowerCase();
   if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+    return true;
+  }
+  if (
+    hostname.endsWith('.trycloudflare.com') ||
+    hostname === 'trycloudflare.com' ||
+    hostname.endsWith('.loca.lt') ||
+    hostname === 'loca.lt'
+  ) {
     return true;
   }
   if (
@@ -155,6 +164,13 @@ export function createApp(runtime: Runtime, port = env.PORT) {
   });
   admin.use(express.json({ limit: '16kb', strict: true }));
   admin.get('/api/state', (_req, res) => {
+    let manifestUrl = `http://${getLanIp()}:${port}/manifest.json`;
+    try {
+      const savedTunnel = readFileSync(resolve('data/tunnel-url.txt'), 'utf8').trim();
+      if (savedTunnel.startsWith('https://')) {
+        manifestUrl = savedTunnel;
+      }
+    } catch {}
     res.json({
       csrf,
       settings: runtime.settings.get(),
@@ -163,8 +179,8 @@ export function createApp(runtime: Runtime, port = env.PORT) {
       demoPreview: { imdbId: 'tt1254207', mediaUrl: DEMO_URL },
       cache: runtime.streams.cache.stats(),
       errors: runtime.errors.list(),
-      installUrl: `http://${getLanIp()}:${port}/manifest.json`,
-      lanInstallUrl: `http://${getLanIp()}:${port}/manifest.json`,
+      installUrl: manifestUrl,
+      lanInstallUrl: manifestUrl,
       localInstallUrl: `http://127.0.0.1:${port}/manifest.json`,
     });
   });

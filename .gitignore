@@ -7,3 +7,5 @@ data/settings.json
 *.log
 data/runtime/
 scratch/
+cloudflared.exe
+data/tunnel-url.txt
