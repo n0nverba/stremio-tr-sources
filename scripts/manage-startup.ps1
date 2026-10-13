@@ -104,6 +104,14 @@ switch ($Action) {
         Write-Host "   3. 'Stremio TR Sources' yanindaki 'Yukle' (Install) butonuna tiklayin." -ForegroundColor White
         Write-Host ""
         Write-Host " * Yonetim Paneli : http://127.0.0.1:7000/admin/" -ForegroundColor Cyan
+        $instLanIp = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*", "Wi-Fi*" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty IPAddress -First 1
+        if (-not $instLanIp) {
+            $instLanIp = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -like "192.168.*" } | Select-Object -ExpandProperty IPAddress -First 1
+        }
+        if ($instLanIp) {
+            $instLanUrl = "http://" + $instLanIp + ":7000/manifest.json"
+            Write-Host " * Telefon / TV   : $instLanUrl" -ForegroundColor Cyan
+        }
         Write-Host "============================================================" -ForegroundColor Green
         Write-Host ""
     }
@@ -154,7 +162,15 @@ switch ($Action) {
         if ($running) {
             Write-Host "Durum          : CALISIYOR (Port 7000 aktif)" -ForegroundColor Green
             Write-Host "Yonetim Paneli : http://127.0.0.1:7000/admin/" -ForegroundColor White
-            Write-Host "Manifest URL   : http://127.0.0.1:7000/manifest.json" -ForegroundColor White
+            Write-Host "Manifest (PC)  : http://127.0.0.1:7000/manifest.json" -ForegroundColor White
+            $lanIp = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*", "Wi-Fi*" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty IPAddress -First 1
+            if (-not $lanIp) {
+                $lanIp = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -like "192.168.*" } | Select-Object -ExpandProperty IPAddress -First 1
+            }
+            if ($lanIp) {
+                $lanUrl = "http://" + $lanIp + ":7000/manifest.json"
+                Write-Host "Manifest (Ag)  : $lanUrl (Mobil / TV)" -ForegroundColor Cyan
+            }
             $inStartup = Test-Path $shortcutFile
             if ($inStartup) {
                 Write-Host "Otomatik Basla : EVET (Windows acilisinda aktif)" -ForegroundColor Green

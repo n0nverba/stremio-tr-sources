@@ -38,8 +38,9 @@
 * 🚀 **"Kur ve Unut" Otomatik Başlatma:** Windows başlangıcına eklenir ve arka planda **tamamen sessiz ve penceresiz** çalışır. Bilgisayarınızı her açtığınızda hazırdır.
 * 🧠 **Akıllı Çok Dilli Wikidata Eşleştirmesi:** Dünya sineması (Kore, Danimarka, Fransız, İspanyol vb.) yapımlarının Türkçe sitelerdeki orijinal/yerel adları Wikidata API üzerinden otomatik çözümlenir. Başlık uyuşmazlığı nedeniyle bulunamayan yapım kalmaz!
 * 🛡️ **Yerleşik HLS Proxy:** Cloudflare korumalı, referer zorunlu ve AES-128 şifreli akışlar yerel proxy üzerinden Stremio oynatıcısına kayıpsız aktarılır.
+* 📱 **Ev İçi Ağ (Wi-Fi / LAN) Desteği:** Aynı Wi-Fi'ye bağlı Android TV, telefon veya tabletlerinizden doğrudan izleyebilirsiniz.
 * 🎛️ **Modern Web Yönetim Paneli:** `http://127.0.0.1:7000/admin/` üzerinden kaynakları açıp kapatabilir, gecikme sürelerini izleyebilir ve önbelleği temizleyebilirsiniz.
-* 🧪 **147+ Otomatik Test:** Sağlam, kurşun geçirmez ve her zaman test edilmiş mimari.
+* 🧪 **148+ Otomatik Test:** Sağlam, kurşun geçirmez ve her zaman test edilmiş mimari.
 
 ---
 
@@ -159,7 +160,10 @@ Türk film siteleri video trafiğini ve IP adreslerini sürekli kısıtlar. Ekle
 
 <details>
 <summary><b>Android TV veya Telefonda nasıl kullanabilirim?</b></summary>
-Stremio hesabınıza bilgisayarınızda bu eklentiyi eklediğinizde, aynı hesapla oturum açtığınız Android TV veya telefonunuzda eklenti listenizde görünür. Akışları izleyebilmek için bilgisayarınızın o esnada açık olması ve aynı yerel ağda (Wi-Fi) bulunması yeterlidir.
+Bilgisayarınız açık ve aynı Wi-Fi ağına bağlı olduğu sürece telefon, tablet veya televizyonunuzdan izleyebilirsiniz:
+1. Bilgisayarınızın yerel ağ IP adresini öğrenin (veya yönetim panelinde <code>http://127.0.0.1:7000/admin/</code> sayfasındaki Wi-Fi adresini kopyalayın).
+2. Örnek manifest: <code>http://192.168.1.XXX:7000/manifest.json</code>
+3. Bu adresi Stremio'da Eklentiler kısmına eklediğinizde, Stremio hesabınız üzerinden tüm cihazlarınızda (PC, telefon, tablet, Android TV) otomatik olarak senkronize olur ve çalışır!
 </details>
 
 ---
