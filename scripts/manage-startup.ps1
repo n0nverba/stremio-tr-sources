@@ -54,7 +54,7 @@ switch ($Action) {
         # 1. Build check
         $distJs = Join-Path $rootDir "dist\index.js"
         if (-not (Test-Path $distJs)) {
-            Write-Host "[1/3] Ilk derleme yapiliyor..." -ForegroundColor Yellow
+            Write-Host "[1/4] Ilk derleme yapiliyor..." -ForegroundColor Yellow
             Set-Location $rootDir
             & npm.cmd run build
             if ($LASTEXITCODE -ne 0) {
@@ -62,11 +62,11 @@ switch ($Action) {
                 exit 1
             }
         } else {
-            Write-Host "[1/3] Derleme hazir (dist/index.js)." -ForegroundColor Green
+            Write-Host "[1/4] Derleme hazir (dist/index.js)." -ForegroundColor Green
         }
 
         # 2. Add to Startup
-        Write-Host "[2/3] Windows baslangicina kisayol ekleniyor..." -ForegroundColor Yellow
+        Write-Host "[2/4] Windows baslangicina kisayol ekleniyor..." -ForegroundColor Yellow
         try {
             $wsh = New-Object -ComObject WScript.Shell
             $shortcut = $wsh.CreateShortcut($shortcutFile)
@@ -75,18 +75,31 @@ switch ($Action) {
             $shortcut.WindowStyle = 7 # Minimized
             $shortcut.Description = "Stremio TR Sources Servisi"
             $shortcut.Save()
-            Write-Host " [OK] Windows Baslangic klasorune eklendi (Simge durumunda calisir):" -ForegroundColor Green
-            Write-Host "      $shortcutFile" -ForegroundColor DarkGray
+            Write-Host " [OK] Windows Baslangic klasorune eklendi (Simge durumunda calisir)." -ForegroundColor Green
         } catch {
             Write-Host " [HATA] Kisayol olusturulamadi: $_" -ForegroundColor Red
             exit 1
         }
 
-        # 3. Start server
-        Write-Host "[3/3] Eklenti baslatiliyor..." -ForegroundColor Yellow
+        # 3. Windows Firewall check (Telefon ve TV erisimi icin)
+        try {
+            $fwRule = netsh advfirewall firewall show rule name="Stremio TR Sources (Port 7000)" 2>&1
+            if ($fwRule -like "*No rules match*" -or $fwRule -like "*kural e*le*miyor*" -or $fwRule -like "*bulunamad*") {
+                Write-Host "[3/4] Telefon ve TV'nin erisebilmesi icin Guvenlik Duvarina izin ekleniyor..." -ForegroundColor Yellow
+                Start-Process cmd -ArgumentList '/c netsh advfirewall firewall add rule name="Stremio TR Sources (Port 7000)" dir=in action=allow protocol=TCP localport=7000 profile=any' -Verb RunAs -Wait -ErrorAction SilentlyContinue
+                Write-Host " [OK] Guvenlik duvari Port 7000 kurali eklendi." -ForegroundColor Green
+            } else {
+                Write-Host "[3/4] Guvenlik duvari kurali hazir." -ForegroundColor Green
+            }
+        } catch {
+            Write-Host " [UYARI] Guvenlik duvari kontrolu atlandi: $_" -ForegroundColor DarkGray
+        }
+
+        # 4. Start server
+        Write-Host "[4/4] Eklenti baslatiliyor..." -ForegroundColor Yellow
         StartServer
 
-        # 4. Resolve network IP for universal PC, mobile and TV support
+        # 5. Resolve network IP for universal PC, mobile and TV support
         $instLanIp = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*", "Wi-Fi*" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty IPAddress -First 1
         if (-not $instLanIp) {
             $instLanIp = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -like "192.168.*" } | Select-Object -ExpandProperty IPAddress -First 1
@@ -97,7 +110,7 @@ switch ($Action) {
         $instLanUrl = "http://" + $instLanIp + ":7000/manifest.json"
         $stremioUrl = "stremio://" + $instLanIp + ":7000/manifest.json"
 
-        # 5. Copy universal manifest URL to clipboard and open Stremio
+        # 6. Copy universal manifest URL to clipboard and open Stremio
         Set-Clipboard -Value $instLanUrl -ErrorAction SilentlyContinue
         Start-Process $stremioUrl -ErrorAction SilentlyContinue
 

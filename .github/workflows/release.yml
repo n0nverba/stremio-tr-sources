@@ -32,7 +32,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path "release\stremio-tr-sources" -Force
-          Copy-Item -Path "dist", "admin", "data", "scripts", "Kur-Otomatik-Baslat.cmd", "Stremio-TR-Baslat.cmd", "Durum-Kontrol.cmd", "Durdur.cmd", "Kaldir-Otomatik-Baslat.cmd", "package.json", "package-lock.json", "README.md", "LICENSE" -Destination "release\stremio-tr-sources" -Recurse -Force
+          Copy-Item -Path "dist", "admin", "data", "scripts", "Kurulum.cmd", "Kur-Otomatik-Baslat.cmd", "Stremio-TR-Baslat.cmd", "Durum-Kontrol.cmd", "Durdur.cmd", "Kaldir-Otomatik-Baslat.cmd", "package.json", "package-lock.json", "README.md", "LICENSE" -Destination "release\stremio-tr-sources" -Recurse -Force
           Set-Location "release\stremio-tr-sources"
           npm ci --omit=dev
           Set-Location ".."

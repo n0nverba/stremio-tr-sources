@@ -82,16 +82,17 @@ Hiçbir kodlama veya komut satırı bilgisine gerek yoktur!
 Projeyi [Releases](https://github.com/n0nverba/stremio-tr-sources/releases) sayfasından veya yeşil **Code -> Download ZIP** butonundan indirin ve klasöre çıkarın.
 
 ### 2. Adım: Kurun
-Klasördeki **`Kur-Otomatik-Baslat.cmd`** dosyasına çift tıklayın.
+Klasördeki **`Kurulum.cmd`** (veya `Kur-Otomatik-Baslat.cmd`) dosyasına çift tıklayın.
 * Gerekli dosyaları derler.
 * Windows Başlangıç klasörüne ekler.
+* Telefon ve TV erişimi için Güvenlik Duvarı iznini ayarlar.
 * Eklentiyi arka planda sessizce başlatır.
 * Stremio'yu açar.
 
 ### 3. Adım: Stremio'da Yükleyin
 Stremio ekranında açılan **"Yükle" (Install)** butonuna tıklayın.
 
-🎉 **Tebrikler!** Artık bilgisayarınızı her açtığınızda eklenti arka planda otomatik çalışır. Bir daha hiçbir pencere açmanıza gerek yoktur; doğrudan Stremio'yu açıp keyifle izleyebilirsiniz.
+🎉 **Tebrikler!** Artık bilgisayarınızı her açtığınızda eklenti arka planda otomatik çalışır. Stremio hesabınız üzerinden aynı Wi-Fi'deki **telefon, tablet ve televizyonunuzda** da anında çalışır!
 
 ---
 
@@ -99,6 +100,7 @@ Stremio ekranında açılan **"Yükle" (Install)** butonuna tıklayın.
 
 | Dosya | Görevi |
 | :--- | :--- |
+| **`Kurulum.cmd`** | Tek tıkla tam kurulum (güvenlik duvarı, başlangıç servisi ve Stremio açılışı). |
 | **`Kur-Otomatik-Baslat.cmd`** | Windows başlangıcına ekler ve arka planda çalıştırır. |
 | **`Durum-Kontrol.cmd`** | Eklenti çalışıyor mu kontrol eder ve yönetim panelini açar. |
 | **`Durdur.cmd`** | Arka planda çalışan eklentiyi kapatır. |
