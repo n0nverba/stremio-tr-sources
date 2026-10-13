@@ -82,17 +82,16 @@ Hiçbir kodlama veya komut satırı bilgisine gerek yoktur!
 Projeyi [Releases](https://github.com/n0nverba/stremio-tr-sources/releases) sayfasından veya yeşil **Code -> Download ZIP** butonundan indirin ve klasöre çıkarın.
 
 ### 2. Adım: Kurun
-Klasördeki **`Kurulum.cmd`** (veya `Kur-Otomatik-Baslat.cmd`) dosyasına çift tıklayın.
+Klasördeki **`Kurulum.cmd`** dosyasına çift tıklayın.
 * Gerekli dosyaları derler.
 * Windows Başlangıç klasörüne ekler.
-* Telefon ve TV erişimi için Güvenlik Duvarı iznini ayarlar.
 * Eklentiyi arka planda sessizce başlatır.
 * Stremio'yu açar.
 
 ### 3. Adım: Stremio'da Yükleyin
 Stremio ekranında açılan **"Yükle" (Install)** butonuna tıklayın.
 
-🎉 **Tebrikler!** Artık bilgisayarınızı her açtığınızda eklenti arka planda otomatik çalışır. Stremio hesabınız üzerinden aynı Wi-Fi'deki **telefon, tablet ve televizyonunuzda** da anında çalışır!
+🎉 **Tebrikler!** Artık bilgisayarınızı her açtığınızda eklenti arka planda otomatik çalışır. Stremio hesabınız üzerinden aynı hesaba bağlı **telefon, tablet ve televizyonunuzda** da anında çalışır!
 
 ---
 
@@ -100,8 +99,7 @@ Stremio ekranında açılan **"Yükle" (Install)** butonuna tıklayın.
 
 | Dosya | Görevi |
 | :--- | :--- |
-| **`Kurulum.cmd`** | Tek tıkla tam kurulum (güvenlik duvarı, başlangıç servisi ve Stremio açılışı). |
-| **`Kur-Otomatik-Baslat.cmd`** | Windows başlangıcına ekler ve arka planda çalıştırır. |
+| **`Kurulum.cmd`** | Tek tıkla tam kurulum (başlangıç servisi ve Stremio kurulum ekranı açılışı). |
 | **`Durum-Kontrol.cmd`** | Eklenti çalışıyor mu kontrol eder ve yönetim panelini açar. |
 | **`Durdur.cmd`** | Arka planda çalışan eklentiyi kapatır. |
 | **`Kaldir-Otomatik-Baslat.cmd`** | Otomatik başlatmayı Windows'tan tamamen kaldırır. |
@@ -152,7 +150,7 @@ Ayrıntılı rehber için lütfen **[CONTRIBUTING.md](CONTRIBUTING.md)** dosyas�
 
 <details>
 <summary><b>Bilgisayarı her açtığımda tekrar başlatmam gerekir mi?</b></summary>
-Hayır! <code>Kur-Otomatik-Baslat.cmd</code> dosyasını bir kez çalıştırdıysanız, Windows her açıldığında eklenti arka planda sessizce kendi kendine başlar.
+Hayır! <code>Kurulum.cmd</code> dosyasını bir kez çalıştırdıysanız, Windows her açıldığında eklenti arka planda sessizce kendi kendine başlar.
 </details>
 
 <details>
@@ -162,10 +160,10 @@ Türk film siteleri video trafiğini ve IP adreslerini sürekli kısıtlar. Ekle
 
 <details>
 <summary><b>Android TV veya Telefonda nasıl kullanabilirim?</b></summary>
-Bilgisayarınız açık ve aynı Wi-Fi ağına bağlı olduğu sürece telefon, tablet veya televizyonunuzdan izleyebilirsiniz:
-1. Bilgisayarınızın yerel ağ IP adresini öğrenin (veya yönetim panelinde <code>http://127.0.0.1:7000/admin/</code> sayfasındaki Wi-Fi adresini kopyalayın).
-2. Örnek manifest: <code>http://192.168.1.XXX:7000/manifest.json</code>
-3. Bu adresi Stremio'da Eklentiler kısmına eklediğinizde, Stremio hesabınız üzerinden tüm cihazlarınızda (PC, telefon, tablet, Android TV) otomatik olarak senkronize olur ve çalışır!
+Stremio'nun hesap senkronizasyonu sayesinde ekstra bir ayar yapmanıza gerek yoktur:
+1. Bilgisayarınızda <code>Kurulum.cmd</code> dosyasını çalıştırıp Stremio'ya kurun.
+2. Telefonunuzda veya Android TV'nizde aynı Stremio hesabıyla oturum açtığınızda eklenti otomatik olarak cihazlarınıza gelir.
+3. Bilgisayarınız açık olduğu sürece tüm cihazlarınızdan kesintisiz izleyebilirsiniz!
 </details>
 
 ---

@@ -192,6 +192,13 @@ switch ($Action) {
         if ($running) {
             Write-Host "Durum          : CALISIYOR (Port 7000 aktif)" -ForegroundColor Green
             Write-Host "Yonetim Paneli : http://127.0.0.1:7000/admin/" -ForegroundColor White
+            $tunnelFile = Join-Path $rootDir "data\tunnel-url.txt"
+            if (Test-Path $tunnelFile) {
+                $saved = (Get-Content $tunnelFile -Raw -ErrorAction SilentlyContinue)
+                if ($saved -and $saved.Trim() -like "https://*") {
+                    Write-Host "Manifest (Sync): $($saved.Trim()) (Mobil / TV / PC)" -ForegroundColor Green
+                }
+            }
             Write-Host "Manifest (PC)  : http://127.0.0.1:7000/manifest.json" -ForegroundColor White
             $lanIp = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*", "Wi-Fi*" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty IPAddress -First 1
             if (-not $lanIp) {
@@ -210,7 +217,7 @@ switch ($Action) {
             Start-Process "http://127.0.0.1:7000/admin/"
         } else {
             Write-Host "Durum          : DURDURULDU (Calismiyor)" -ForegroundColor Red
-            Write-Host "Baslatmak icin : Stremio-TR-Baslat.cmd veya Kur-Otomatik-Baslat.cmd" -ForegroundColor Yellow
+            Write-Host "Baslatmak icin : Stremio-TR-Baslat.cmd veya Kurulum.cmd" -ForegroundColor Yellow
         }
         Write-Host ""
     }
