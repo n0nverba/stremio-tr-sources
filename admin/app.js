@@ -24,8 +24,13 @@ async function load() {
   state = await api('state');
   byId('demo-check').disabled = !state.demoPreview;
   byId('install').value = state.installUrl;
-  if (byId('install-lan')) {
-    byId('install-lan').value = state.lanInstallUrl || state.installUrl;
+  if (byId('install-local')) {
+    byId('install-local').value =
+      state.localInstallUrl || 'http://127.0.0.1:7000/manifest.json';
+  }
+  const stremioBtn = byId('stremio-install-btn');
+  if (stremioBtn && state.installUrl) {
+    stremioBtn.href = state.installUrl.replace(/^http:\/\//, 'stremio://');
   }
   byId('language').value = state.settings.language;
   byId('quality').value = state.settings.quality;
@@ -108,13 +113,15 @@ byId('clear').addEventListener('click', (event) =>
 byId('copy').addEventListener('click', (event) =>
   action(event.target, async () => {
     await navigator.clipboard.writeText(state.installUrl);
-    message('PC kurulum adresi kopyalandı.');
+    message('Eklenti kurulum adresi kopyalandı.');
   }),
 );
-byId('copy-lan')?.addEventListener('click', (event) =>
+byId('copy-local')?.addEventListener('click', (event) =>
   action(event.target, async () => {
-    await navigator.clipboard.writeText(state.lanInstallUrl || state.installUrl);
-    message('Wi-Fi / Mobil kurulum adresi kopyalandı.');
+    await navigator.clipboard.writeText(
+      state.localInstallUrl || 'http://127.0.0.1:7000/manifest.json',
+    );
+    message('Localhost adresi kopyalandı.');
   }),
 );
 byId('health').addEventListener('click', (event) =>

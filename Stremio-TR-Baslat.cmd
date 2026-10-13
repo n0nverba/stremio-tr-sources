@@ -18,11 +18,16 @@ if not exist "dist\index.js" (
     )
 )
 
-echo [2/2] Sunucu baslatiliyor (Port: 7000)...
-echo.
+for /f "tokens=*" %%i in ('powershell -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'Ethernet*', 'Wi-Fi*' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty IPAddress -First 1"') do set "LAN_IP=%%i"
+if "%LAN_IP%"=="" (
+    for /f "tokens=*" %%i in ('powershell -NoProfile -Command "Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -like '192.168.*' } | Select-Object -ExpandProperty IPAddress -First 1"') do set "LAN_IP=%%i"
+)
+if "%LAN_IP%"=="" set "LAN_IP=127.0.0.1"
+
 echo ============================================================
 echo   Yonetim Paneli : http://127.0.0.1:7000/admin/
-echo   Eklenti Adresi : http://127.0.0.1:7000/manifest.json
+echo   Eklenti (Ag)   : http://%LAN_IP%:7000/manifest.json (Mobil/TV/PC)
+echo   Eklenti (PC)   : http://127.0.0.1:7000/manifest.json
 echo.
 echo   * Bu pencere ACIK kaldigi surece eklenti Stremio'da calisacaktir.
 echo   * Kapatmak icin pencereyi kapatin veya Ctrl+C tusuna basin.
@@ -30,7 +35,7 @@ echo ============================================================
 echo.
 
 start "" "http://127.0.0.1:7000/admin/"
-start "" "stremio://127.0.0.1:7000/manifest.json"
+start "" "stremio://%LAN_IP%:7000/manifest.json"
 
 node dist/index.js
 set "exitCode=%ERRORLEVEL%"

@@ -17,33 +17,34 @@
       <section>
         <h2>Stremio’ya ekle</h2>
         <p>
-          Stremio uygulamasında Eklentiler bölümüne aşağıdaki manifest
-          adresini yapıştırın. Güncellemeden sonra eklentiyi kaldırıp yeniden
+          Stremio uygulamasında Eklentiler (Addons) bölümüne aşağıdaki manifest
+          adresini yapıştırın. Güncellemeden sonra eski eklentiyi kaldırıp bunu
           ekleyin.
         </p>
-        <div style="margin-bottom: 12px;">
-          <label style="display:block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Bu Bilgisayar İçin (PC):</label>
+        <div style="margin-bottom: 14px;">
+          <label style="display:block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #38bdf8;">🌐 Eklenti Kurulum Adresi (Tüm Cihazlar: PC, Telefon, TV):</label>
           <div class="install">
             <input
               id="install"
               readonly
-              aria-label="PC kurulum adresi"
+              aria-label="Kurulum adresi"
             /><button id="copy" type="button">Kopyala</button>
           </div>
-        </div>
-        <div>
-          <label style="display:block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #38bdf8;">Aynı Wi-Fi’deki Telefon / Tablet / TV İçin (Önerilen):</label>
-          <div class="install">
-            <input
-              id="install-lan"
-              readonly
-              aria-label="Mobil ve TV kurulum adresi"
-            /><button id="copy-lan" type="button">Kopyala</button>
+          <div style="margin-top: 8px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <a id="stremio-install-btn" href="#" style="background:#6366f1; color:#fff; text-decoration:none; padding:8px 14px; border-radius:6px; font-weight:600; font-size:0.88rem; display:inline-block;">📲 Stremio'da Doğrudan Yükle</a>
+            <small style="color: #94a3b8;">* Bu adresi PC'deki Stremio'ya eklerseniz, telefon ve TV'nize de hesabınız üzerinden otomatik aktarılır.</small>
           </div>
-          <small style="display:block; margin-top: 6px; color: #94a3b8;">
-            💡 Bu Wi-Fi adresini PC'nizdeki Stremio'ya eklerseniz hesabınızla telefonunuza da otomatik aktarılır ve her iki cihazda da sorunsuz çalışır!
-          </small>
         </div>
+        <details style="margin-top: 10px;">
+          <summary style="cursor:pointer; font-size: 0.85rem; color: #94a3b8;">Alternatif / Yalnızca Bu PC İçin (Localhost)</summary>
+          <div class="install" style="margin-top: 6px;">
+            <input
+              id="install-local"
+              readonly
+              aria-label="Localhost adresi"
+            /><button id="copy-local" type="button">Kopyala</button>
+          </div>
+        </details>
         <p class="muted" style="margin-top: 14px;">
           Demo film: Big Buck Bunny · IMDb tt1254207 · Blender Foundation · CC
           BY 3.0

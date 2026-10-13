@@ -42,7 +42,7 @@ function isAllowedClientIp(addr?: string): boolean {
   try {
     if (!ipaddr.isValid(addr)) return false;
     const range = ipaddr.process(addr).range();
-    return range === 'loopback' || range === 'private';
+    return ['loopback', 'private', 'linkLocal', 'uniqueLocal'].includes(range);
   } catch {
     return false;
   }
@@ -74,7 +74,7 @@ function isAllowedHost(host?: string, port = env.PORT): boolean {
   try {
     if (!ipaddr.isValid(hostname)) return false;
     const range = ipaddr.process(hostname).range();
-    return range === 'loopback' || range === 'private';
+    return ['loopback', 'private', 'linkLocal', 'uniqueLocal'].includes(range);
   } catch {
     return false;
   }
@@ -93,20 +93,20 @@ export function createApp(runtime: Runtime, port = env.PORT) {
     }
   >();
   app.use((req, res, next) => {
-    if (!isAllowedClientIp(req.socket.remoteAddress)) {
-      res.status(403).json({ error: 'LOCAL_ONLY' });
-      return;
-    }
-    if (!isAllowedHost(req.headers.host, port)) {
-      res.status(403).json({ error: 'INVALID_HOST' });
-      return;
-    }
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
     res.setHeader('Access-Control-Allow-Headers', '*');
     res.setHeader('Access-Control-Allow-Private-Network', 'true');
     if (req.method === 'OPTIONS') {
       res.status(204).end();
+      return;
+    }
+    if (!isAllowedClientIp(req.socket.remoteAddress)) {
+      res.status(403).json({ error: 'LOCAL_ONLY' });
+      return;
+    }
+    if (!isAllowedHost(req.headers.host, port)) {
+      res.status(403).json({ error: 'INVALID_HOST' });
       return;
     }
     if (req.path.startsWith('/proxy/')) {
@@ -163,8 +163,9 @@ export function createApp(runtime: Runtime, port = env.PORT) {
       demoPreview: { imdbId: 'tt1254207', mediaUrl: DEMO_URL },
       cache: runtime.streams.cache.stats(),
       errors: runtime.errors.list(),
-      installUrl: `http://127.0.0.1:${port}/manifest.json`,
+      installUrl: `http://${getLanIp()}:${port}/manifest.json`,
       lanInstallUrl: `http://${getLanIp()}:${port}/manifest.json`,
+      localInstallUrl: `http://127.0.0.1:${port}/manifest.json`,
     });
   });
   admin.get('/api/health', (_req, res, next) => {
