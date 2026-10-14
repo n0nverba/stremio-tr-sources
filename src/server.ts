@@ -16,6 +16,7 @@ import { ErrorJournal, logger } from './utils/logger.js';
 import { createProxyRouter } from './utils/hls-proxy.js';
 import ipaddr from 'ipaddr.js';
 import { getLanIp } from './utils/lan-ip.js';
+import { checkGitHubUpdate, runUpdateScript } from './utils/updater.js';
 export function createRuntime(
   registry: ProviderRegistry,
   settings = new SettingsStore(),
@@ -102,7 +103,9 @@ export function createApp(runtime: Runtime, port = env.PORT) {
     }
   >();
   app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const origin = req.headers.origin;
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
     res.setHeader('Access-Control-Allow-Headers', '*');
     res.setHeader('Access-Control-Allow-Private-Network', 'true');
@@ -145,7 +148,11 @@ export function createApp(runtime: Runtime, port = env.PORT) {
       "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; media-src https://media.w3.org; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
     );
     const origin = req.headers.origin;
-    if (origin && origin !== `http://${req.headers.host}`) {
+    if (
+      origin &&
+      origin !== `http://${req.headers.host}` &&
+      origin !== `https://${req.headers.host}`
+    ) {
       res.status(403).json({ error: 'INVALID_ORIGIN' });
       return;
     }
@@ -212,6 +219,14 @@ export function createApp(runtime: Runtime, port = env.PORT) {
     runtime.streams.clear();
     runtime.health.cache.clear();
     res.json({ ok: true });
+  });
+  admin.get('/api/update/check', async (_req, res) => {
+    const status = await checkGitHubUpdate(5000);
+    res.json(status);
+  });
+  admin.post('/api/update/apply', (_req, res) => {
+    const result = runUpdateScript();
+    res.json(result);
   });
   admin.use(
     express.static(resolve('admin'), { index: 'index.html', etag: false }),

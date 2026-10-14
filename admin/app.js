@@ -28,6 +28,55 @@ async function load() {
   if (stremioBtn && state.installUrl) {
     stremioBtn.href = state.installUrl.replace(/^https?:\/\//, 'stremio://');
   }
+  if (state.installUrl && !state.installUrl.startsWith('https://')) {
+    setTimeout(load, 2500);
+  }
+  checkUpdate();
+}
+async function checkUpdate() {
+  try {
+    const update = await api('update/check');
+    const statusEl = byId('update-status');
+    const detailsEl = byId('update-details');
+    const btn = byId('update-btn');
+    if (!statusEl) return;
+
+    if (update.offline) {
+      statusEl.textContent = 'Mevcut Sürüm: ' + update.localSha;
+      statusEl.style.color = '#94a3b8';
+      detailsEl.textContent = 'GitHub sunucusuna ulaşılamadı (çevrimdışı).';
+    } else if (update.updateAvailable) {
+      statusEl.textContent = '🎉 Yeni bir güncelleme mevcut! (' + update.remoteSha + ')';
+      statusEl.style.color = '#34d399';
+      detailsEl.textContent = update.message;
+      btn.style.display = 'inline-block';
+      btn.onclick = async () => {
+        btn.disabled = true;
+        btn.textContent = 'Güncelleniyor…';
+        try {
+          const res = await api('update/apply', {});
+          if (res.success) {
+            alert('Güncelleme başarıyla tamamlandı! Servis yeniden başlatılıyor...');
+            location.reload();
+          } else {
+            alert('Güncelleme hatası: ' + res.output);
+            btn.disabled = false;
+            btn.textContent = 'Tekrar Dene';
+          }
+        } catch (e) {
+          alert('Güncelleme hatası: ' + e.message);
+          btn.disabled = false;
+          btn.textContent = 'Tekrar Dene';
+        }
+      };
+    } else {
+      statusEl.textContent = '✅ En son sürümü kullanıyorsunuz (' + update.localSha + ')';
+      statusEl.style.color = '#38bdf8';
+      detailsEl.textContent = 'Son değişiklik: ' + update.message;
+      btn.style.display = 'none';
+    }
+  } catch (err) {}
+}
   byId('language').value = state.settings.language;
   byId('quality').value = state.settings.quality;
   byId('timeout').value = state.settings.providerTimeoutMs;

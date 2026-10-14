@@ -39,8 +39,9 @@
 * 🧠 **Akıllı Çok Dilli Wikidata Eşleştirmesi:** Dünya sineması (Kore, Danimarka, Fransız, İspanyol vb.) yapımlarının Türkçe sitelerdeki orijinal/yerel adları Wikidata API üzerinden otomatik çözümlenir. Başlık uyuşmazlığı nedeniyle bulunamayan yapım kalmaz!
 * 🛡️ **Yerleşik HLS Proxy:** Cloudflare korumalı, referer zorunlu ve AES-128 şifreli akışlar yerel proxy üzerinden Stremio oynatıcısına kayıpsız aktarılır.
 * 📱 **Ev İçi Ağ (Wi-Fi / LAN) Desteği:** Aynı Wi-Fi'ye bağlı Android TV, telefon veya tabletlerinizden doğrudan izleyebilirsiniz.
+* 🔄 **Otomatik Güncelleme Desteği:** Her başlangıçta GitHub'daki en son yenilikleri kontrol eder; `Guncelle.cmd` veya Yönetim Paneli üzerinden tek tıkla kendini günceller.
 * 🎛️ **Modern Web Yönetim Paneli:** `http://127.0.0.1:7000/admin/` üzerinden kaynakları açıp kapatabilir, gecikme sürelerini izleyebilir ve önbelleği temizleyebilirsiniz.
-* 🧪 **148+ Otomatik Test:** Sağlam, kurşun geçirmez ve her zaman test edilmiş mimari.
+* 🧪 **149+ Otomatik Test:** Sağlam, kurşun geçirmez ve her zaman test edilmiş mimari.
 
 ---
 
@@ -100,6 +101,7 @@ Stremio ekranında açılan **"Yükle" (Install)** butonuna tıklayın.
 | Dosya | Görevi |
 | :--- | :--- |
 | **`Kurulum.cmd`** | Tek tıkla tam kurulum (başlangıç servisi ve Stremio kurulum ekranı açılışı). |
+| **`Guncelle.cmd`** | GitHub'daki en son güncellemeleri ve yeni kaynakları tek tıkla indirip derler. |
 | **`Durum-Kontrol.cmd`** | Eklenti çalışıyor mu kontrol eder ve yönetim panelini açar. |
 | **`Durdur.cmd`** | Arka planda çalışan eklentiyi kapatır. |
 | **`Kaldir-Otomatik-Baslat.cmd`** | Otomatik başlatmayı Windows'tan tamamen kaldırır. |

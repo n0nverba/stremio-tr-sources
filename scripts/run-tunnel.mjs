@@ -1,8 +1,9 @@
 import { spawn } from 'node:child_process';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const rootDir = resolve(dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1')), '..');
+const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cloudflaredExe = resolve(rootDir, 'cloudflared.exe');
 const tunnelFile = resolve(rootDir, 'data', 'tunnel-url.txt');
 

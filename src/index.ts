@@ -4,6 +4,7 @@ import { createRegistry } from './providers/registry.js';
 import { createApp, createRuntime } from './server.js';
 import { logger } from './utils/logger.js';
 import { getLanIp } from './utils/lan-ip.js';
+import { startTunnel, stopTunnel } from './utils/tunnel.js';
 async function main() {
   const registry = await createRegistry();
   const settings = new SettingsStore();
@@ -18,6 +19,7 @@ async function main() {
       `Stremio (PC): http://127.0.0.1:${env.PORT}/manifest.json\n` +
       `Stremio (Mobil / TV): http://${lanIp}:${env.PORT}/manifest.json`,
     );
+    startTunnel(env.PORT);
   });
   server.on('error', () => {
     logger.error({ code: 'LISTEN_FAILED' }, 'Cannot start local server');
@@ -27,6 +29,7 @@ async function main() {
   const shutdown = () => {
     if (closing) return;
     closing = true;
+    stopTunnel();
     const force = setTimeout(() => {
       server.closeAllConnections();
       process.exit(1);
